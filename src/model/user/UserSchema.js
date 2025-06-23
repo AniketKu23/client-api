@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { token } = require('morgan');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -31,6 +32,18 @@ const UserSchema = new Schema({
         minlength: 8,
         maxlength: 100,
         required: true
+    },
+    refreshJWT:{
+        token:{
+            type: String,
+            maxlength:500,
+            default: ''
+        },
+        addedAt : {
+            type: Date,
+            requird : true,
+            default: Date.now(),
+        }
     }
 });
 

@@ -1,6 +1,7 @@
 const { referrerPolicy } = require('helmet')
 const jwt = require('jsonwebtoken')
 const { setJWT, getJWT } = require('./redisHelper')
+const { storeUserRefreshJWT } = require('../model/user/UserModel')
 
 
 
@@ -20,14 +21,19 @@ const createAccessJWT = async(email, _id) =>{
     }
 }
 
-const createRefreshJWT = (payLoad) =>{
-    const refreshJWT = jwt.sign(
-        { payLoad}, 
+const createRefreshJWT = async(email, _id) =>{
+
+    try {
+        const refreshJWT = jwt.sign(
+        { email }, 
         process.env.JWT_REFRESH_SECRET,
         {expiresIn: '30d'}
     )
-
-    return Promise.resolve(refreshJWT)
+        await storeUserRefreshJWT(_id, refreshJWT)
+    } catch (error) {
+        return Promise.reject(refreshJWT)
+    }
+    
 }
 
 
