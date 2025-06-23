@@ -3,6 +3,7 @@ const router = express.Router()
 const {insertUser, getUserByEmail} = require("../model/user/UserModel")
 const {hashPassword, comparePassword} = require("../helpers/bcryptHelper")
 const { useRevalidator } = require("react-router-dom")
+const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper")
 
 
 router.all('/',(req, res, next)=>{
@@ -53,10 +54,19 @@ router.post("/login", async(req, res) => {
     if(!passFromDb) 
         return res.json({status : "error", message: "Invalid email or password!"})
     const result = await comparePassword(password, passFromDb)
-    console.log(result)
+    
+    if(!result){
+        return res.json({status : "error", message: "Invalid email or password!"})
+    }
+    
+    const accessJWT = await createAccessJWT(user.email)
+    const refreshJWT = await createRefreshJWT(user.email)
 
-
-    res.json({ status: "success", message : "Login Successful!"})
+    res.json({ status: "success", 
+        message : "Login Successful!",
+        accessJWT,
+        refreshJWT,
+    })
 })
 
 module.exports = router
