@@ -1,0 +1,23 @@
+### User sign up endpoint
+POST http://localhost:3001/v1/user
+Content-Type: application/json
+
+{
+    "name": "Aniket",
+    "company":"UPMRC",
+    "address": "something",
+    "phone": "1234567890",
+    "email": "ak4̥@gmail.com",
+    "password":"secret123"
+
+}
+
+### User sign in endpoint
+POST http://localhost:3001/v1/user/login
+Content-Type: application/json
+
+{
+    "email": "ak3@gmail.com",
+    "password":"secret123"
+
+}
