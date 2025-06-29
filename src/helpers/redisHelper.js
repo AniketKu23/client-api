@@ -39,7 +39,13 @@ const getJWT = (key) => {
   });
 };
 
+const deleteJWT = (key) => {
+  try {
+    client.del(key);
+  } catch (error) {}
+};
 module.exports = {
   setJWT,
   getJWT,
+  deleteJWT,
 };

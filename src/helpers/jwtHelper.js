@@ -21,9 +21,12 @@ const createRefreshJWT = async (email, _id) => {
     const refreshJWT = jwt.sign({ email }, process.env.JWT_REFRESH_SECRET, {
       expiresIn: "30d",
     });
+
     await storeUserRefreshJWT(_id, refreshJWT);
+
+    return refreshJWT; // ✅ Return the token
   } catch (error) {
-    return Promise.reject(refreshJWT);
+    return Promise.reject(error); // ❌ You were rejecting `refreshJWT`, which might not even be defined
   }
 };
 
@@ -34,9 +37,17 @@ const verifyAccessJWT = (userJWT) => {
     return Prormise.resolve(error);
   }
 };
+const verifyRefreshJWT = (userJWT) => {
+  try {
+    return Promise.resolve(jwt.verify(userJWT, process.env.JWT_REFRESH_SECRET));
+  } catch (error) {
+    return Prormise.resolve(error);
+  }
+};
 
 module.exports = {
   createAccessJWT,
   createRefreshJWT,
   verifyAccessJWT,
+  verifyRefreshJWT,
 };

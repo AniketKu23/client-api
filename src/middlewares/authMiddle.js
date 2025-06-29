@@ -1,6 +1,6 @@
 const { decode } = require("jsonwebtoken");
 const { verifyAccessJWT } = require("../helpers/jwtHelper");
-const { getJWT } = require("../helpers/redisHelper");
+const { getJWT, deleteJWT } = require("../helpers/redisHelper");
 
 const userAuthorization = async (req, res, next) => {
   const { authorization } = req.headers;
@@ -16,6 +16,7 @@ const userAuthorization = async (req, res, next) => {
     return next();
   }
 
+  deleteJWT(authorization);
   return res.status(403).json({ message: "Forbidden" });
 };
 
