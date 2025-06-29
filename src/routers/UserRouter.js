@@ -1,14 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const { insertUser, getUserByEmail } = require("../model/user/UserModel");
+const {
+  insertUser,
+  getUserByEmail,
+  getUserById,
+} = require("../model/user/UserModel");
 const { hashPassword, comparePassword } = require("../helpers/bcryptHelper");
 const { useRevalidator } = require("react-router-dom");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
+const { userAuthorization } = require("../middlewares/authMiddle");
 
 router.all("/", (req, res, next) => {
   // res.json({message: "return form user router"})
 
   next();
+});
+
+// Get user profile router
+router.get("/", userAuthorization, async (req, res) => {
+  const _id = req.userId;
+
+  const userProf = await getUserById(_id);
+
+  res.json({ user: req.userId });
 });
 
 //Create new user route
