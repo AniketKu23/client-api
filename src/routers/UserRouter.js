@@ -10,6 +10,7 @@ const { useRevalidator } = require("react-router-dom");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const { userAuthorization } = require("../middlewares/authMiddle");
 const { setPasswordResetPin } = require("../model/resetPin/ResetPinModel");
+const { emailProcessor } = require("../helpers/emailHelper");
 
 router.all("/", (req, res, next) => {
   // res.json({message: "return form user router"})
@@ -82,20 +83,6 @@ router.post("/login", async (req, res) => {
   });
 });
 
-// router.post("/reset-password", async (req, res) => {
-//   const { email } = req.body;
-
-//   const user = await getUserByEmail(email);
-//   if (!user && !user._id) {
-//     const setPin = await setPasswordResetPin(email);
-//     return res.json(setPin);
-//   }
-//   res.json({
-//     status: "error",
-//     message:
-//       "If the email exists in out database, the password reset pin will be sent shortly. ",
-//   });
-// });
 router.post("/reset-password", async (req, res) => {
   const { email } = req.body;
 
@@ -107,15 +94,29 @@ router.post("/reset-password", async (req, res) => {
 
   if (user && user._id) {
     const pin = await setPasswordResetPin(email);
-    return res.json({
-      status: "success",
-      message: "Reset pin generated",
-      pin,
+
+    const result = await emailProcessor({
+      email,
+      pin: pin.pin,
+      type: "request-new-password",
+    });
+
+    if (result?.messageId) {
+      return res.json({
+        status: "success",
+        message:
+          "If the email exists in our database, the password reset pin will be sent shortly.",
+      });
+    }
+
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to send reset pin email.",
     });
   }
 
-  res.json({
-    status: "error",
+  return res.json({
+    status: "success",
     message:
       "If the email exists in our database, the password reset pin will be sent shortly.",
   });
