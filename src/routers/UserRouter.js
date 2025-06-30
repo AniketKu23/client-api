@@ -9,6 +9,7 @@ const { hashPassword, comparePassword } = require("../helpers/bcryptHelper");
 const { useRevalidator } = require("react-router-dom");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const { userAuthorization } = require("../middlewares/authMiddle");
+const { setPasswordResetPin } = require("../model/resetPin/ResetPinModel");
 
 router.all("/", (req, res, next) => {
   // res.json({message: "return form user router"})
@@ -78,6 +79,45 @@ router.post("/login", async (req, res) => {
     message: "Login Successful!",
     accessJWT,
     refreshJWT,
+  });
+});
+
+// router.post("/reset-password", async (req, res) => {
+//   const { email } = req.body;
+
+//   const user = await getUserByEmail(email);
+//   if (!user && !user._id) {
+//     const setPin = await setPasswordResetPin(email);
+//     return res.json(setPin);
+//   }
+//   res.json({
+//     status: "error",
+//     message:
+//       "If the email exists in out database, the password reset pin will be sent shortly. ",
+//   });
+// });
+router.post("/reset-password", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const user = await getUserByEmail(email);
+
+  if (user && user._id) {
+    const pin = await setPasswordResetPin(email);
+    return res.json({
+      status: "success",
+      message: "Reset pin generated",
+      pin,
+    });
+  }
+
+  res.json({
+    status: "error",
+    message:
+      "If the email exists in our database, the password reset pin will be sent shortly.",
   });
 });
 
