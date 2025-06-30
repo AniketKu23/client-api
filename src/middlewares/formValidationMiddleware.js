@@ -71,11 +71,10 @@ const newUserValidation = (req, res, next) => {
     name: shortStr.required(),
     company: shortStr.required(),
     address: shortStr.required(),
-    phone: phone,
-    email: shortStr.required(),
-    password: shortStr.required(),
+    phone,
+    email,
+    password: newPassword,
   });
-
   const value = schema.validate(req.body);
 
   if (value.error) {

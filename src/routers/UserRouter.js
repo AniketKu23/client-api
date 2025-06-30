@@ -5,6 +5,7 @@ const {
   getUserByEmail,
   getUserById,
   updatePassword,
+  storeUserRefreshJWT,
 } = require("../model/user/UserModel");
 const { hashPassword, comparePassword } = require("../helpers/bcryptHelper");
 const { useRevalidator } = require("react-router-dom");
@@ -20,6 +21,7 @@ const {
   resetPassReqValidation,
   updatePassValidation,
 } = require("../middlewares/formValidationMiddleware");
+const { deleteJWT } = require("../helpers/redisHelper");
 
 router.all("/", (req, res, next) => {
   // res.json({message: "return form user router"})
@@ -60,7 +62,7 @@ router.post("/", async (req, res) => {
 });
 
 // User Sign in Router
-router.post("/login", resetPassReqValidation, async (req, res) => {
+router.post("/login", async (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
 
@@ -92,7 +94,7 @@ router.post("/login", resetPassReqValidation, async (req, res) => {
   });
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", resetPassReqValidation, async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -186,6 +188,21 @@ router.patch("/reset-password", updatePassValidation, async (req, res) => {
       message: "Something went wrong. Please try again later.",
     });
   }
+});
+
+// User logout and invalidate jwts
+router.delete("/logout", userAuthorization, async (req, res) => {
+  const { authorization } = req.headers;
+  const _id = req.userId;
+  deleteJWT(authorization);
+  const result = await storeUserRefreshJWT(_id, "");
+  if (result._id) {
+    return res.json({ status: "success", message: "Logged out successfully" });
+  }
+  res.json({
+    status: "error",
+    message: "Unable to logout , please try again later",
+  });
 });
 
 module.exports = router;
