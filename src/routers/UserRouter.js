@@ -4,12 +4,17 @@ const {
   insertUser,
   getUserByEmail,
   getUserById,
+  updatePassword,
 } = require("../model/user/UserModel");
 const { hashPassword, comparePassword } = require("../helpers/bcryptHelper");
 const { useRevalidator } = require("react-router-dom");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const { userAuthorization } = require("../middlewares/authMiddle");
-const { setPasswordResetPin } = require("../model/resetPin/ResetPinModel");
+const {
+  setPasswordResetPin,
+  getPinByEmail,
+  deletePin,
+} = require("../model/resetPin/ResetPinModel");
 const { emailProcessor } = require("../helpers/emailHelper");
 
 router.all("/", (req, res, next) => {
@@ -120,6 +125,63 @@ router.post("/reset-password", async (req, res) => {
     message:
       "If the email exists in our database, the password reset pin will be sent shortly.",
   });
+});
+
+router.patch("/reset-password", async (req, res) => {
+  const { email, pin, newPassword } = req.body;
+
+  if (!email || !pin || !newPassword) {
+    return res.status(400).json({
+      status: "error",
+      message: "Missing required fields.",
+    });
+  }
+
+  try {
+    const getPin = await getPinByEmail(email, pin);
+    if (!getPin || !getPin._id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid or expired pin.",
+      });
+    }
+
+    const dbDate = new Date(getPin.addedAt);
+    const expiresIn = 1; // days
+    const expDate = new Date(dbDate);
+    expDate.setDate(dbDate.getDate() + expiresIn);
+
+    if (new Date() > expDate) {
+      return res.status(400).json({
+        status: "error",
+        message: "Reset pin has expired.",
+      });
+    }
+
+    const hashedPass = await hashPassword(newPassword);
+    const updatedUser = await updatePassword(email, hashedPass);
+
+    if (!updatedUser || !updatedUser._id) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to update password.",
+      });
+    }
+
+    await emailProcessor({ email, type: "update-password-success" });
+    await deletePin(email, pin);
+
+    return res.json({
+      status: "success",
+      message: "Your password has been updated.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Something went wrong. Please try again later.",
+    });
+  }
 });
 
 module.exports = router;

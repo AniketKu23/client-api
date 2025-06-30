@@ -1,25 +1,11 @@
 const { token } = require("morgan");
 const Reset_Pin = require("./ResetPinSchema");
 const { randomPinNumber } = require("../../utils/randomGenerator");
-
-// const setPasswordResetPin = (email) => {
-//   const randPin = 567890;
-
-//   const resetObj = {
-//     email,
-//     pin: randPin,
-//   };
-//   return new Promise((resolve, rejct) => {
-//     ResetPinSchema(resetObj)
-//       .save()
-//       .then((data) => resolve(data))
-//       .catch((error) => isRejected(error));
-//   });
-// };
+const ResetPinSchema = require("./ResetPinSchema");
+const { data } = require("react-router-dom");
 
 const setPasswordResetPin = async (email) => {
   const pinLength = 6;
-
   const randPin = await randomPinNumber(pinLength);
 
   try {
@@ -33,6 +19,33 @@ const setPasswordResetPin = async (email) => {
     throw error;
   }
 };
+
+const getPinByEmail = (email, pin) => {
+  return new Promise((resolve, reject) => {
+    Reset_Pin.findOne({ email, pin }, (error, data) => {
+      if (error) {
+        console.error("Error in getPinByEmail:", error);
+        return reject(error);
+      }
+      resolve(data);
+    });
+  });
+};
+
+const deletePin = (email, pin) => {
+  return new Promise((resolve, reject) => {
+    Reset_Pin.findOneAndDelete({ email, pin }, (error, data) => {
+      if (error) {
+        console.error("Error in deletePin:", error);
+        return reject(error);
+      }
+      resolve(data);
+    });
+  });
+};
+
 module.exports = {
   setPasswordResetPin,
+  getPinByEmail,
+  deletePin,
 };
