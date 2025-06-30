@@ -16,6 +16,10 @@ const {
   deletePin,
 } = require("../model/resetPin/ResetPinModel");
 const { emailProcessor } = require("../helpers/emailHelper");
+const {
+  resetPassReqValidation,
+  updatePassValidation,
+} = require("../middlewares/formValidationMiddleware");
 
 router.all("/", (req, res, next) => {
   // res.json({message: "return form user router"})
@@ -56,7 +60,7 @@ router.post("/", async (req, res) => {
 });
 
 // User Sign in Router
-router.post("/login", async (req, res) => {
+router.post("/login", resetPassReqValidation, async (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
 
@@ -127,7 +131,7 @@ router.post("/reset-password", async (req, res) => {
   });
 });
 
-router.patch("/reset-password", async (req, res) => {
+router.patch("/reset-password", updatePassValidation, async (req, res) => {
   const { email, pin, newPassword } = req.body;
 
   if (!email || !pin || !newPassword) {
