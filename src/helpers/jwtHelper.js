@@ -32,11 +32,13 @@ const createRefreshJWT = async (email, _id) => {
 
 const verifyAccessJWT = (userJWT) => {
   try {
-    return Promise.resolve(jwt.verify(userJWT, process.env.JWT_ACCESS_SECRET));
+    const decoded = jwt.verify(userJWT, process.env.JWT_ACCESS_SECRET);
+    return Promise.resolve(decoded);
   } catch (error) {
-    return Prormise.resolve(error);
+    return Promise.reject(error);
   }
 };
+
 const verifyRefreshJWT = (userJWT) => {
   try {
     return Promise.resolve(jwt.verify(userJWT, process.env.JWT_REFRESH_SECRET));
