@@ -33,9 +33,19 @@ router.all("/", (req, res, next) => {
 router.get("/", userAuthorization, async (req, res) => {
   const _id = req.userId;
 
-  const userProf = await getUserById(_id);
+  try {
+    const userProf = await getUserById(_id);
 
-  res.json({ user: req.userId });
+    if (!userProf) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
+    }
+
+    res.json({ status: "success", user: userProf });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
 });
 
 //Create new user route

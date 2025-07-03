@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { token } = require("morgan");
 const Schema = mongoose.Schema;
 
 const ResetPinSchema = new Schema({

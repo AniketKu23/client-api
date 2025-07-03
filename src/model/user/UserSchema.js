@@ -1,51 +1,53 @@
-const mongoose = require('mongoose');
-const { token } = require('morgan');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    name: {
-        type: String,
-        maxlength: 50,
-        required: true
+  name: {
+    type: String,
+    maxlength: 50,
+    required: true,
+  },
+  company: {
+    type: String,
+    maxlength: 50,
+    required: true,
+  },
+  address: {
+    type: String,
+    maxlength: 100,
+  },
+  phone: {
+    type: String,
+    validate: {
+      validator: function (v) {
+        return /^\d{10,11}$/.test(v); // allow 10 or 11 digit numbers
+      },
+      message: (props) => `${props.value} is not a valid phone number!`,
     },
-    company: {
-        type: String,
-        maxlength: 50,
-        required: true
+  },
+  email: {
+    type: String,
+    maxlength: 50,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    minlength: 8,
+    required: true,
+  },
+  refreshJWT: {
+    token: {
+      type: String,
+      maxlength: 500,
+      default: "",
     },
-    address: {
-        type: String,
-        maxlength: 100,
+    addedAt: {
+      type: Date,
+      required: true,
+      default: Date.now,
     },
-    phone: {
-        type: Number,
-        maxlength: 11,
-    },
-    email: {
-        type: String,
-        maxlength: 50,
-        required: true,
-        unique: true // Added to ensure email uniqueness
-    },
-    password: {
-        type: String,
-        minlength: 8,
-        maxlength: 100,
-        required: true
-    },
-    refreshJWT:{
-        token:{
-            type: String,
-            maxlength:500,
-            default: ''
-        },
-        addedAt : {
-            type: Date,
-            requird : true,
-            default: Date.now(),
-        }
-    }
+  },
 });
 
-// Compile model and export directly
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

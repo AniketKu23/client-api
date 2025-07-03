@@ -1,8 +1,6 @@
-const { token } = require("morgan");
 const Reset_Pin = require("./ResetPinSchema");
 const { randomPinNumber } = require("../../utils/randomGenerator");
 const ResetPinSchema = require("./ResetPinSchema");
-const { data } = require("react-router-dom");
 
 const setPasswordResetPin = async (email) => {
   const pinLength = 6;

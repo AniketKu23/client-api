@@ -1,14 +1,11 @@
-const UserSchema = require("./UserSchema");
-const User = require("./UserSchema"); // Import the model directly
+const User = require("./UserSchema");
 
 const insertUser = async (userObj) => {
   try {
     const newUser = new User(userObj);
-    const savedUser = await newUser.save();
-    return savedUser;
+    return await newUser.save();
   } catch (error) {
     console.error("Error creating user:", error);
-    // Handle duplicate email error specifically
     if (error.code === 11000) {
       throw new Error("Email already exists");
     }
@@ -18,52 +15,49 @@ const insertUser = async (userObj) => {
 
 const getUserByEmail = async (email) => {
   if (!email) return null;
-
   try {
     return await User.findOne({ email });
   } catch (error) {
-    console.error("Error finding user:", error);
+    console.error("Error finding user by email:", error);
     throw error;
   }
 };
 
 const getUserById = async (_id) => {
   if (!_id) return null;
-
   try {
     return await User.findOne({ _id });
   } catch (error) {
-    console.error("Error finding user:", error);
+    console.error("Error finding user by ID:", error);
     throw error;
   }
 };
 
-const storeUserRefreshJWT = (_id, token) => {
-  return new Promise((resolve, reject) => {
-    try {
-      UserSchema.findOneAndUpdate(
-        { _id },
-        {
-          $set: { "refreshJWT.token": token, "refreshJWT.addedAt": Date.now() },
+const storeUserRefreshJWT = async (_id, token) => {
+  try {
+    return await User.findOneAndUpdate(
+      { _id },
+      {
+        $set: {
+          "refreshJWT.token": token,
+          "refreshJWT.addedAt": Date.now(),
         },
-        { new: true }
-      )
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    } catch (error) {
-      reject(error);
-    }
-  });
+      },
+      { new: true }
+    );
+  } catch (error) {
+    console.error("Error storing refresh token:", error);
+    throw error;
+  }
 };
 
 const updatePassword = async (email, newHashedPass) => {
   try {
-    const updatedUser = await UserSchema.findOneAndUpdate(
+    return await User.findOneAndUpdate(
       { email },
       { $set: { password: newHashedPass } },
       { new: true }
     );
-    return updatedUser;
   } catch (error) {
     console.error("Error updating password:", error);
     throw error;

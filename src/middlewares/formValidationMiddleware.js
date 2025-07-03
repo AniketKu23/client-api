@@ -17,18 +17,18 @@ const dt = Joi.date();
 const resetPassReqValidation = (req, res, next) => {
   const schema = Joi.object({ email });
 
-  const value = schema.validate(req.body);
-  if (value.error) {
-    return res.json({ status: "error", message: value.error.message });
+  const { error } = schema.validate(req.body, { abortEarly: false });
+  if (error) {
+    return res.json({ status: "error", message: error.message });
   }
   next();
 };
 const updatePassValidation = (req, res, next) => {
   const schema = Joi.object({ email, pin, newPassword });
 
-  const value = schema.validate(req.body);
-  if (value.error) {
-    return res.json({ status: "error", message: value.error.message });
+  const { error } = schema.validate(req.body, { abortEarly: false });
+  if (error) {
+    return res.json({ status: "error", message: error.message });
   }
   next();
 };
@@ -42,10 +42,10 @@ const createNewTicketValidation = (req, res, next) => {
   });
 
   console.log(req.body);
-  const value = schema.validate(req.body);
+  const { error } = schema.validate(req.body, { abortEarly: false });
 
-  if (value.error) {
-    return res.json({ status: "error", message: value.error.message });
+  if (error) {
+    return res.json({ status: "error", message: error.message });
   }
 
   next();
@@ -57,10 +57,10 @@ const replyTicketMessageValidation = (req, res, next) => {
   });
 
   console.log(req.body);
-  const value = schema.validate(req.body);
+  const { error } = schema.validate(req.body, { abortEarly: false });
 
-  if (value.error) {
-    return res.json({ status: "error", message: value.error.message });
+  if (error) {
+    return res.json({ status: "error", message: error.message });
   }
 
   next();
@@ -75,10 +75,10 @@ const newUserValidation = (req, res, next) => {
     email,
     password: newPassword,
   });
-  const value = schema.validate(req.body);
+  const { error } = schema.validate(req.body, { abortEarly: false });
 
-  if (value.error) {
-    return res.json({ status: "error", message: value.error.message });
+  if (error) {
+    return res.json({ status: "error", message: error.message });
   }
 
   next();

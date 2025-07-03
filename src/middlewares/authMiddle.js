@@ -1,4 +1,3 @@
-const { decode } = require("jsonwebtoken");
 const { verifyAccessJWT } = require("../helpers/jwtHelper");
 const { getJWT, deleteJWT } = require("../helpers/redisHelper");
 
